@@ -1,0 +1,10 @@
+- name: Copy key to production servers
+  hosts: prodserver1, prodserver2
+  tasks:
+    - name: Copy the file from master to the destination-worker
+      copy:
+        src: "/home/ubuntu/DE2-Project/model_serving/buffer/g13-dev-5308-id_rsa.pub"
+        dest: "/tmp/"
+    - name: add the public key into Authorized_keys file to enable Key Auth
+      shell: "cat /tmp/g13-dev-5308-id_rsa.pub >> /home/appuser/.ssh/authorized_keys"
+      register: addtoauth

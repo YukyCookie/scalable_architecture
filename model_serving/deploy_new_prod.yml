@@ -1,0 +1,41 @@
+- name: Initialization new production server
+  # please change the name to the name of new prodserver
+  hosts: prodserver1, prodserver2
+  tasks:
+    - name: Generate hosts file
+      lineinfile: dest=/etc/hosts
+                  regexp='.*{{ item }}$'
+                  line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}"
+                  state=present            
+      when: hostvars[item].ansible_default_ipv4.address is defined
+      with_items: "{{groups['all']}}"
+      become: true
+    - name: apt update
+      apt: update_cache=yes upgrade=dist
+      become: true
+
+    - name: Download git repository
+      become: true
+      git:
+        repo: 'https://yukycookie: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@github.com/zaakmu/DE2-Project.git'
+        dest: /DE2-Project 
+
+        
+   -  name: Change ownership of a directory
+      become: true
+      file:
+        path: /technical-training
+        state: directory
+        recurse: yes
+        owner: appuser
+        group: appuser
+
+    - name: Copy the file from master to the destination-worker
+      copy:
+        src: "/home/ubuntu/DE2-Project/model_serving/buffer/g13-dev-5308-id_rsa.pub"
+        dest: "/tmp/"
+
+    - name: add the public key into Authorized_keys file to enable Key Auth
+      shell: "cat /tmp/g13-dev-5308-id_rsa.pub >> /home/appuser/.ssh/authorized_keys"
+      register: addtoauth
+

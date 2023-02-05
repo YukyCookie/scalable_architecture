@@ -1,0 +1,27 @@
+- name: create empty githook on production server
+  hosts: devserver1
+  tasks:
+    - name: run and generate model
+      become: true
+      shell: python3 Random_Forest.py
+      args:
+        chdir: /DE2-Project/development_server/
+
+    - name: copy file to my_project
+      shell: cp -a /DE2-Project/development_server/model.pkl /home/appuser/my_project/.
+
+    - name: go to my_project 
+      command: git add .
+      args: 
+        chdir: /home/appuser/my_project/
+
+    - name: git commit 
+      command: git commit -m "new model"
+      args: 
+        chdir: /home/appuser/my_project/
+    
+    - name: go push 
+      command: git push production master
+      args: 
+        chdir: /home/appuser/my_project/
+

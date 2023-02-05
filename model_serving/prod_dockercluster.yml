@@ -1,0 +1,8 @@
+- name: add workers in production servers
+  hosts: prodserver1
+  tasks:
+    - name: scale up/down workers
+      become: true
+      command: docker-compose up --scale worker_1=3 -d
+      args:
+        chdir: /DE2-Project/production_server/

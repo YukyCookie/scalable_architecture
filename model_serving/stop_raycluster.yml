@@ -1,0 +1,4 @@
+- hosts: devservers
+  tasks:
+    - name: stop ray cluster
+      shell: ray stop

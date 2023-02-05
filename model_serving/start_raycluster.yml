@@ -1,0 +1,61 @@
+- hosts: devservers
+ 
+  tasks:
+   - name: Extra packages
+     apt: pkg=python3-pip state=latest update_cache=true  
+     become: true
+   
+   - name: Install ray
+     become: true
+     pip: 
+      name: protobuf==3.20.0, ray, ray[tune], ray[rllib], ray[serve], tune-sklearn, ray[default]
+
+- hosts: devserver1
+  tasks:
+   - name: Download git repository
+     become: true
+     git:
+      repo: 'https://yukycookie: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@github.com/zaakmu/DE2-Project.git'
+      dest: /DE2-Project
+
+   - name: ray start host node
+     shell: ray start --head --port=6379 --include-dashboard=true
+     register: host_node
+     
+  #  - name: check host node
+  #    debug: 
+  #      var: host_node
+
+   - name: stop for 5 seconds  
+     pause:
+       seconds: 5
+
+   - name: ray up
+     shell: ray up /DE2-Project/model_serving/rayconfig.yaml -y
+
+   - name: pause for 10 seconds to start ray
+     pause:
+       seconds: 10
+     
+   - name: ray status
+     shell: ray status
+     register: ray_status  
+   - debug: 
+       var: ray_status
+
+# - hosts: devserver2, devserver3 
+#   tasks:
+#    - name: pause for 15 seconds to wait for the host node
+#      pause:
+#        seconds: 15
+
+#    - name: start ray in worker node
+#      shell: ray start --address=192.168.2.217:6379
+
+#    - name: ray status
+#      shell: ray status
+#      register: ray_status 
+
+#    - debug: 
+#        var: ray_status
+

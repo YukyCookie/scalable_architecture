@@ -1,0 +1,39 @@
+- name: create empty githook on production server
+  hosts: devserver1
+  tasks:
+    - name: Download git repository
+      become: true
+      git:
+        repo: 'https://yukycookie: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@github.com/zaakmu/DE2-Project.git'
+        dest: /DE2-Project
+
+    - name: Extra packages
+      apt: pkg=python3-pip state=latest update_cache=true  
+      become: true
+
+    - name: Install ML packages
+      become: true
+      pip: 
+        name: tensorflow==2.5.3, keras==2.4.1, numpy, future, pandas, tabulate, packaging
+    
+    - name: make directory
+      shell: mkdir -p /home/appuser/my_project
+
+    - name: create git empty directory
+      shell: git init /home/appuser/my_project
+
+    - name: git config 
+      command: git config --global user.email "appuser@192.168.2.180" 
+      args: 
+        chdir: /home/appuser/my_project/
+
+    - name: git config 
+      command: git config --global user.name "g13-dev-5308" 
+      args: 
+        chdir: /home/appuser/my_project/
+    
+    - name: git remote 
+      command: git remote add production appuser@192.168.2.200:/home/appuser/my_project
+      args: 
+        chdir: /home/appuser/my_project/
+

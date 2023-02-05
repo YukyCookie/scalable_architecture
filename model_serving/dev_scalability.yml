@@ -1,0 +1,27 @@
+- name: create empty githook on production server
+  hosts: devserver1
+  tasks:
+    - name: Download git repository
+      become: true
+      git:
+        repo: 'https://yukycookie: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@github.com/zaakmu/DE2-Project.git'
+        dest: /DE2-Project
+
+    - name: ray status
+      shell: ray status
+      register: ray_status
+
+    - name: information of ray cluster
+      debug: 
+        var: ray_status
+
+    - name: test time with different number of development vm
+      # become: true
+      shell: python3 scalability_test.py
+      args:
+        chdir: /DE2-Project/development_server/
+      register: running_time
+    
+    - name: The running time with the current ray cluster
+      debug:
+        var: running_time

@@ -1,0 +1,25 @@
+- name: create empty githook on production server
+  hosts: prodserver1
+  tasks:
+    - name: Download git repository
+      become: true
+      git:
+        repo: 'https://yukycookie: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@github.com/zaakmu/DE2-Project.git'
+        dest: /DE2-Project
+    
+    - name: make directory
+      # become: true 
+      shell: mkdir -p /home/appuser/my_project
+
+    - name: create git empty directory
+      # become: true
+      shell: git init --bare /home/appuser/my_project
+
+    - name: create a git hook post-receive
+      # become: true
+      copy:
+        src: "/home/ubuntu/DE2-Project/model_serving/post-receive"
+        dest: "/home/appuser/my_project/hooks/"
+    - name: change permissions
+      # become: true
+      shell: chmod +x /home/appuser/my_project/hooks/post-receive

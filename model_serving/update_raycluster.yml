@@ -1,0 +1,35 @@
+- hosts: devserver1
+  tasks:
+   - name: Download git repository
+     become: true
+     git:
+       repo: 'https://yukycookie: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@github.com/zaakmu/DE2-Project.git'
+       dest: /DE2-Project
+
+   - name: ray up
+     shell: ray up /DE2-Project/model_serving/rayconfig.yaml --no-restart -y
+
+   - name: pause for 10 seconds to start ray
+     pause:
+       seconds: 10
+
+   - name: ray status
+     shell: ray status
+     register: ray_status  
+   - debug: 
+       var: ray_status
+
+- hosts: devserver2, devserver3
+  tasks:
+   - name: pause for 15 seconds to wait for the host node
+     pause:
+       seconds: 15
+
+   - name: start ray in worker node
+     shell: ray start --address=192.168.2.180:6379
+  
+   - name: ray status
+     shell: ray status
+     register: ray_status  
+   - debug: 
+       var: ray_status

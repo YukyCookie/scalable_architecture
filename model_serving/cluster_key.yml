@@ -1,0 +1,34 @@
+- name: Create key in host node
+  hosts: devserver1
+  tasks:
+    - name: SSH KeyGen command
+      shell: > 
+        ssh-keygen -q -b 2048 -t rsa -N "" -C "" -f ~/.ssh/id_rsa
+        creates="~/.ssh/id_rsa"
+    - name: Fetch the keyfile from one server to another
+      fetch: 
+        src: "~/.ssh/id_rsa.pub"
+        dest: "buffer/{{ansible_hostname}}-id_rsa.pub"
+        flat: yes
+
+- name: Copy key to worker node
+  hosts: devserver1, devserver2, devserver3
+  tasks:
+    - name: Copy the file from master to the destination-worker
+      copy:
+        src: "/home/ubuntu/DE2-Project/model_serving/buffer/g13-dev-5308-id_rsa.pub"
+        dest: "/tmp/"
+    - name: add the public key into Authorized_keys file to enable Key Auth
+      shell: "cat /tmp/g13-dev-5308-id_rsa.pub >> /home/appuser/.ssh/authorized_keys"
+      register: addtoauth
+
+- name: Copy key to production servers
+  hosts: prodserver1, prodserver2
+  tasks:
+    - name: Copy the file from master to the destination-worker
+      copy:
+        src: "/home/ubuntu/DE2-Project/model_serving/buffer/g13-dev-5308-id_rsa.pub"
+        dest: "/tmp/"
+    - name: add the public key into Authorized_keys file to enable Key Auth
+      shell: "cat /tmp/g13-dev-5308-id_rsa.pub >> /home/appuser/.ssh/authorized_keys"
+      register: addtoauth
