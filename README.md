@@ -1,5 +1,4 @@
-# DE2-Project
-Project 3 for DE2 course
+# Scalable framework for predicting the stargazers of Github
 1. First time to start instances  
 Step 1:   
 Command: `python3 start_instances.py`  
